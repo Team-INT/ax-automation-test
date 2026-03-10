@@ -261,7 +261,7 @@ describe("updateCustomer", () => {
     const result = await updateCustomer("id-1", undefined, formData)
 
     expect(result).toEqual({ error: "인증이 필요합니다." })
-    expect(mockDb.customer.update).not.toHaveBeenCalled()
+    expect(mockDb.update).not.toHaveBeenCalled()
   })
 
   it("유효하지 않은 데이터 → 에러 반환", async () => {
@@ -275,21 +275,19 @@ describe("updateCustomer", () => {
 
   it("정상 업데이트 → success + revalidatePath", async () => {
     mockGetSession.mockResolvedValue(mockSession())
-    mockDb.customer.update.mockResolvedValue({ id: "id-1", name: "홍길동" })
+    mockDb.returning.mockResolvedValue([{ id: "id-1", name: "홍길동" }])
 
     const formData = createFormData({ name: "홍길동" })
     const result = await updateCustomer("id-1", undefined, formData)
 
     expect(result).toEqual({ success: true })
-    expect(mockDb.customer.update).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: "id-1" } })
-    )
+    expect(mockDb.update).toHaveBeenCalled()
     expect(mockRevalidatePath).toHaveBeenCalledWith("/admin/customers")
   })
 
   it("DB 에러 → 에러 반환", async () => {
     mockGetSession.mockResolvedValue(mockSession())
-    mockDb.customer.update.mockRejectedValue(new Error("DB 연결 실패"))
+    mockDb.returning.mockRejectedValue(new Error("DB 연결 실패"))
 
     const formData = createFormData({ name: "홍길동" })
     const result = await updateCustomer("id-1", undefined, formData)

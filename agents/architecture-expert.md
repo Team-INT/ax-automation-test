@@ -108,26 +108,29 @@ import { pgTable, text, timestamp, index } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { createId } from '@paralleldrive/cuid2'
 
-// 1:N - 참조 쪽에 외래키
+// 1:N - 참조 쪽에 외래키 (.references()로 SQL FK 제약조건 설정)
 export const campaigns = pgTable('campaigns', {
   id: text('id').primaryKey().$defaultFn(() => createId()),
-  customerId: text('customer_id').notNull(),
+  customerId: text('customer_id').notNull().references(() => customers.id),
   // ...
 }, (table) => [
   index('campaigns_customer_id_idx').on(table.customerId),
 ])
 
+// relations()는 쿼리 API 전용 — SQL FK가 아님
 export const campaignsRelations = relations(campaigns, ({ one }) => ({
   customer: one(customers, { fields: [campaigns.customerId], references: [customers.id] }),
 }))
 
-// N:M - 중간 테이블 (명시적)
+// N:M - 중간 테이블 (id PK + uniqueIndex + .references())
 export const campaignInfluencers = pgTable('campaign_influencers', {
-  campaignId: text('campaign_id').notNull(),
-  influencerId: text('influencer_id').notNull(),
+  id: text('id').primaryKey().$defaultFn(() => createId()),
+  campaignId: text('campaign_id').notNull().references(() => campaigns.id),
+  influencerId: text('influencer_id').notNull().references(() => influencers.id),
   status: text('status').notNull().default('RECRUITING'),
 }, (table) => [
   index('ci_campaign_id_idx').on(table.campaignId),
+  uniqueIndex('ci_unique_idx').on(table.campaignId, table.influencerId),
 ])
 ```
 

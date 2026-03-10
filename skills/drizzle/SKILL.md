@@ -93,7 +93,9 @@ export const customers = pgTable('customers', {
 
   // 3. 감사 필드
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdateFn(() => new Date()),
+  // ⚠️ Prisma @updatedAt과 달리 Drizzle은 자동 갱신이 없음
+  // $onUpdateFn()은 ORM update() 호출 시만 동작, raw SQL에는 적용 안 됨
 }, (table) => [
   // 4. 인덱스
   index('customers_status_idx').on(table.status),
@@ -118,14 +120,14 @@ export const campaigns = pgTable('campaigns', {
   id: text('id').primaryKey().$defaultFn(() => createId()),
   name: text('name').notNull(),
   status: text('status').notNull().default('RECRUITING'),
-  customerId: text('customer_id').notNull(),
+  customerId: text('customer_id').notNull().references(() => customers.id), // FK 제약조건
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdateFn(() => new Date()),
 }, (table) => [
   index('campaigns_customer_id_idx').on(table.customerId),
 ])
 
-// Relations 정의 (쿼리 API용)
+// Relations 정의 (쿼리 API용 — relations()는 SQL FK가 아님, 쿼리 빌더 전용)
 export const customersRelations = relations(customers, ({ many }) => ({
   campaigns: many(campaigns),
 }))
@@ -143,8 +145,8 @@ export const campaignsRelations = relations(campaigns, ({ one }) => ({
 ```typescript
 export const campaignInfluencers = pgTable('campaign_influencers', {
   id: text('id').primaryKey().$defaultFn(() => createId()),
-  campaignId: text('campaign_id').notNull(),
-  influencerId: text('influencer_id').notNull(),
+  campaignId: text('campaign_id').notNull().references(() => campaigns.id),
+  influencerId: text('influencer_id').notNull().references(() => influencers.id),
 
   // 중간 테이블 고유 필드
   nickname: text('nickname').notNull(),
@@ -152,7 +154,7 @@ export const campaignInfluencers = pgTable('campaign_influencers', {
   status: text('status').notNull().default('RECRUITING'),
 
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdateFn(() => new Date()),
 }, (table) => [
   index('ci_campaign_id_idx').on(table.campaignId),
   uniqueIndex('ci_unique_idx').on(table.campaignId, table.influencerId),
@@ -347,7 +349,25 @@ DATABASE_URL="postgresql://postgres.[ref]:[password]@aws-0-ap-northeast-2.pooler
 ## Important Notes
 
 1. **`pgTable`로 스키마 정의** -- Drizzle은 TypeScript 코드로 스키마를 작성
-2. **`relations()`는 쿼리 API 전용** -- SQL 외래키 제약조건은 별도 설정 필요
+2. **`relations()`는 쿼리 API 전용** -- SQL 외래키 제약조건은 `.references()` 로 별도 설정 필요
 3. **`$defaultFn()`으로 CUID 생성** -- 클라이언트 사이드 ID 생성
 4. **`@@map` 대신 컬럼명 직접 지정** -- `text('snake_case')` 형태
 5. **인덱스는 테이블 정의 콜백에서 설정** -- `(table) => [index(...)]`
+6. **`updatedAt` 자동 갱신 없음** -- `.$onUpdateFn(() => new Date())` 또는 update 시 `.set({ updatedAt: new Date() })` 명시 필요
+7. **Enum은 `text` + TypeScript 타입 권장** -- `pgEnum`은 마이그레이션 시 ALTER TYPE 필요하므로 선택적 사용
+
+### Enum 처리 가이드라인
+
+```typescript
+// ✅ 권장: text + TypeScript 타입 (마이그레이션 변경이 자유로움)
+export type CampaignStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
+
+export const campaigns = pgTable('campaigns', {
+  status: text('status').$type<CampaignStatus>().notNull().default('DRAFT'),
+})
+
+// 🔶 선택적: pgEnum (DB 레벨 제약이 필요한 경우)
+// 주의: 값 추가/삭제 시 ALTER TYPE 마이그레이션 필요
+import { pgEnum } from 'drizzle-orm/pg-core'
+export const campaignStatusEnum = pgEnum('campaign_status', ['DRAFT', 'ACTIVE', 'COMPLETED', 'CANCELLED'])
+```

@@ -39,7 +39,8 @@ export const modelName = pgTable('model_name', {
 
   // 3. 감사 필드
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdateFn(() => new Date()),
+  // ⚠️ Prisma @updatedAt과 달리 $onUpdateFn()은 ORM update() 호출 시만 동작
 }, (table) => [
   // 4. 인덱스
   index('model_name_status_created_idx').on(table.status, table.createdAt),
@@ -82,8 +83,9 @@ export const campaignsRelations = relations(campaigns, ({ one }) => ({
 
 ```typescript
 export const campaignInfluencers = pgTable('campaign_influencers', {
-  campaignId: text('campaign_id').notNull(),
-  influencerId: text('influencer_id').notNull(),
+  id: text('id').primaryKey().$defaultFn(() => createId()),
+  campaignId: text('campaign_id').notNull().references(() => campaigns.id),
+  influencerId: text('influencer_id').notNull().references(() => influencers.id),
 
   // 중간 테이블 고유 필드
   status: text('status').notNull().default('PENDING'),
@@ -96,11 +98,16 @@ export const campaignInfluencers = pgTable('campaign_influencers', {
 ### 3. Enum-like Pattern
 
 ```typescript
-// PostgreSQL enum은 마이그레이션 시 변경이 까다로우므로 text + 타입으로 관리
+// ✅ 권장: text + TypeScript 타입 (마이그레이션 변경이 자유로움)
 export type CustomerStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
 export type CampaignStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
 
-// 또는 pgEnum 사용
+export const customers = pgTable('customers', {
+  status: text('status').$type<CustomerStatus>().notNull().default('ACTIVE'),
+})
+
+// 🔶 선택적: pgEnum (DB 레벨 제약이 필요한 경우)
+// 주의: 값 추가/삭제 시 ALTER TYPE 마이그레이션 필요
 import { pgEnum } from 'drizzle-orm/pg-core'
 export const customerStatusEnum = pgEnum('customer_status', ['ACTIVE', 'INACTIVE', 'SUSPENDED'])
 ```
