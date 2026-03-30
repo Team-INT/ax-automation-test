@@ -69,7 +69,7 @@ cd ~/projects/my-app && claude
 
 ## What's Included
 
-### Agents (4)
+### Agents (6)
 
 역할별 전문 AI 에이전트가 개발을 지원합니다.
 
@@ -77,10 +77,12 @@ cd ~/projects/my-app && claude
 |-------|------|------|
 | **dev-assistant** | 코드 구현/리뷰/리팩토링 | Write/Edit 가능, context7 연동 |
 | **architecture-expert** | 시스템 설계/데이터 모델링 | 설계만 담당 (구현 X) |
+| **copy-strategist** | 타겟 분석/카피라이팅 | 역할 분리 Step 1, 읽기 전용 |
+| **design-director** | 디자인 톤/스펙/외부 도구 가이드 | 역할 분리 Step 2, Figma MCP 연동 |
 | **performance-expert** | 번들 분석/Core Web Vitals | next-devtools 연동 |
 | **docs-writer** | API/컴포넌트 문서 생성 | 템플릿 기반 자동화 |
 
-### Commands (17)
+### Commands (21)
 
 모든 명령어는 `/enf:` 네임스페이스를 사용합니다.
 
@@ -90,6 +92,10 @@ cd ~/projects/my-app && claude
 | | `design-feature` | 새 기능의 아키텍처 설계 (Route, Model, API) |
 | | `schema-design` | Drizzle 스키마 설계 및 리뷰 |
 | | `perf-audit` | 번들 크기, Waterfall, Core Web Vitals 분석 |
+| **Design** | `copy-write` | 타겟 분석 + 5섹션 카피 작성 (역할 분리 Step 1) |
+| | `copy-review` | 카피 품질 검증 (역할 분리 Gate 1) |
+| | `design-guide` | 디자인 가이드 + 스펙 생성 (역할 분리 Step 2) |
+| | `design-implement` | 디자인 → 코드 구현 (역할 분리 Step 3) |
 | **Dev** | `refactor` | 코드 리팩토링 제안 및 적용 |
 | | `type-check` | TypeScript strict 모드 검증 |
 | | `waterfall-check` | 순차 await 패턴 검출 → Promise.all 제안 |
@@ -104,7 +110,7 @@ cd ~/projects/my-app && claude
 | **진단** | `health` | 프로젝트 버전 호환성 검사 |
 | **Guide** | `init` | 플러그인 사용법 및 프로젝트 가이드 |
 
-### Skills (6)
+### Skills (7)
 
 키워드 기반으로 자동 활성화되는 지식 베이스입니다.
 
@@ -115,6 +121,7 @@ cd ~/projects/my-app && claude
 | **drizzle** | Drizzle, 스키마, DB | pgTable 스키마, 쿼리 패턴, drizzle-kit CLI |
 | **tailwind-v4-shadcn** | Tailwind, shadcn, 폼 | CSS-first 설정, Form 패턴, 테마 |
 | **testing** | 테스트, vitest, playwright | Vitest, Testing Library, Playwright E2E |
+| **role-separation-workflow** | 카피, 랜딩페이지, Variant | 카피→디자인→구현 역할 분리 방법론 |
 | **error-handling** | 에러, API Route, Error Boundary | Server Action/API Route/DB 에러 처리 패턴 |
 
 ### MCP Servers (2)
@@ -154,6 +161,8 @@ cd ~/projects/my-app && claude
 
 ## Workflow
 
+### 기능 개발 (Admin/CRUD/API)
+
 ```
 /enf:task "기능명"          →  브랜치 생성
        ↓
@@ -164,6 +173,22 @@ cd ~/projects/my-app && claude
 /enf:code-review            →  품질 검사
        ↓
 /enf:commit → /enf:push → /enf:pr
+```
+
+### 사이트/랜딩페이지 (역할 분리 워크플로우)
+
+```
+/enf:task "랜딩페이지"       →  브랜치 생성
+       ↓
+/enf:copy-write             →  타겟 분석 + 카피 작성 (copy-strategist)
+       ↓
+/enf:copy-review            →  카피 품질 검증 (Gate 1)
+       ↓
+/enf:design-guide           →  디자인 가이드 + 스펙 (design-director)
+       ↓
+/enf:design-implement       →  코드 구현 (dev-assistant)
+       ↓
+/enf:code-review → /enf:commit → /enf:push → /enf:pr
 ```
 
 ---
