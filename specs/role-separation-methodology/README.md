@@ -37,8 +37,8 @@ AI에게 "웹사이트 만들어줘"라고 한 방에 맡기면:
 
 ```
 [카피]              [디자인]             [구현]
-Claude Code    →   Variant/Figma   →   Claude Code
-(리서치+카피)       (시각 디자인)         (코드 구현)
+Claude Code    →   Claude Code     →   Claude Code
+(리서치+카피)       (디자인 스펙)         (코드 구현)
 ```
 
 각 단계의 산출물이 다음 단계의 **입력이자 제약 조건**이 되어, 결과물의 일관성과 퀄리티를 보장한다.
@@ -94,7 +94,7 @@ Claude Code    →   Variant/Figma   →   Claude Code
 | 역할 | 도구 | 집중 영역 |
 |------|------|-----------|
 | 카피라이터 | Claude Code (`copy-strategist`) | 메시지, 톤, 설득력 |
-| 크리에이티브 디렉터 | Variant / Figma (`design-director`) | 시각, 레이아웃, 인터랙션 |
+| 크리에이티브 디렉터 | Claude Code (`design-director`) | 시각, 레이아웃, 인터랙션 |
 | 프론트엔드 엔지니어 | Claude Code (`dev-assistant`) | 코드, 성능, 반응형 |
 
 ---
@@ -152,25 +152,24 @@ Step 1: 리서치 & 카피                    Step 2: 디자인                 
 
 **프로세스:**
 
-1. **히어로 섹션 디자인 톤 설정**
-   - `copy.md`의 히어로 카피를 Variant에 입력
-   - 강렬한 톤, 원하는 스타일 요청
-   - 생성된 변형 중 톤 선택 (컬러, 폰트, 밀도, 레이아웃)
+1. **copy.md 분석**
+   - 각 섹션의 콘텐츠 구조 파악 (텍스트 양, 항목 수, 이미지 필요 여부)
+   - 타겟 페르소나의 시각적 기대치 분석
 
-2. **섹션별 디자인 확장 (체이닝)**
-   - 히어로의 "New Chat from Design" 기능으로 다음 섹션 생성
-   - **반드시** `copy.md`의 해당 섹션 카피를 함께 붙여넣기
-   - 카피 없이 요청하면 AI가 카피를 멋대로 만들어 기존 디자인이 날아감
+2. **디자인 톤 결정**
+   - 타겟 페르소나와 서비스 성격에 맞는 시각적 톤 설정
+   - 히어로에서 컬러, 폰트, 밀도, 레이아웃 확정
+   - 기존 디자인 레퍼런스가 있으면 해당 컨셉 우선 적용
 
-3. **디자인 토큰 추출**
-   - 컬러 팔레트 (primary, secondary, accent, surface)
-   - 타이포그래피 (headline font, body font, sizes)
-   - 여백 밀도, 레이아웃 특성
+3. **섹션별 디자인 스펙 작성**
+   - 레이아웃, 배경, 컴포넌트, 인터랙션, Copy 매핑
+   - ASCII 와이어프레임으로 레이아웃 시각화
 
-4. **디자인 스펙 문서화**
-   - 각 섹션의 시각적 사양 정리
-   - Variant/Figma 내보내기 코드 첨부
+4. **디자인 시스템 토큰 정의**
+   - 컬러, 타이포, 간격 등 Tailwind `@theme` CSS 변수로 추출
    - `design-spec.md` 파일로 출력
+
+> **참고:** Figma URL 제공 시 MCP 도구로 디자인 정보 추출 가능. 외부 도구(Variant 등)는 사용자가 명시적으로 요청한 경우에만 가이드 제공.
 
 **산출물**: `design-spec.md` ([템플릿 →](design-spec-template.md))
 
@@ -221,7 +220,7 @@ Step 1: 리서치 & 카피                    Step 2: 디자인                 
 |------|------|
 | **전문성** | 시각 디자인, UI/UX, 디자인 시스템 |
 | **입력** | `copy.md` + 브랜드 가이드라인 |
-| **출력** | `design-spec.md` + 외부 도구 가이드 |
+| **출력** | `design-spec.md` |
 | **도구** | Read, Glob, Grep, Figma MCP 도구 |
 | **제약** | 카피를 수정하지 않음, 코드를 작성하지 않음 |
 | **페르소나 렌즈** | "시각적으로 신뢰감/매력을 어떻게 전달하는가?" |
@@ -340,7 +339,7 @@ role-separation-workflow            ← 트리거: 카피, 역할 분리, Varian
 /enf:copy-review                    ← Gate 1: 카피 검증
        ↓ (pass)
 /enf:design-guide                   ← Step 2: 디자인 (design-director)
-       ↓ [Variant/Figma 작업 → design-spec.md 생성]
+       ↓ [design-spec.md 생성]
 /enf:design-implement               ← Step 3: 구현 (dev-assistant)
        ↓ [코드 생성]
 /enf:code-review → /enf:commit → /enf:push → /enf:pr

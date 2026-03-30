@@ -300,8 +300,8 @@ URL: https://example.com
 
 ## 4. Phase 2: 디자인
 
-> 카피를 기반으로 시각 디자인을 잡는 단계.
-> Variant 또는 Figma를 활용한다.
+> 카피를 기반으로 시각 디자인 스펙을 잡는 단계.
+> Claude가 직접 `design-spec.md`를 생성한다. Figma 연동은 선택.
 
 ### Step 2-1. 디자인 가이드 생성
 
@@ -322,40 +322,17 @@ URL: https://example.com
 ```
 
 **에이전트 수행 내용:**
-1. `copy.md` 분석
-2. 섹션별 Variant 작업 프롬프트 생성 (복사해서 바로 사용 가능)
-3. 디자인 톤 방향 제안
+1. `copy.md` 분석 (콘텐츠 구조, 텍스트 양, 항목 수)
+2. 디자인 톤 결정 (타겟 페르소나 + 서비스 성격 기반)
+3. 섹션별 디자인 스펙 작성 (레이아웃, 배경, 컴포넌트, 인터랙션, ASCII 와이어프레임)
+4. 디자인 시스템 토큰 정의 (Tailwind `@theme` CSS 변수)
+5. `design-spec.md` 파일 생성
+
+> **참고:** Figma URL 제공 시 `--figma` 옵션으로 MCP 도구 활용 가능. 외부 도구(Variant 등)는 사용자가 명시적으로 요청한 경우에만 가이드 제공.
 
 ---
 
-### Step 2-2. 외부 도구에서 디자인 작업 (사용자)
-
-에이전트가 생성한 프롬프트를 Variant에서 실행한다.
-
-**순서:**
-
-#### 1) 히어로 섹션 (톤 확정)
-
-Variant에 히어로 프롬프트 붙여넣기 → 여러 변형 중 톤 선택
-
-#### 2) 후속 섹션 (체이닝)
-
-선택한 히어로 디자인에서:
-1. **"New Chat from Design"** 클릭
-2. `copy.md`의 해당 섹션 카피 **원문 붙여넣기** (필수!)
-3. Problem → Service → Testimonials → CTA 순서로 반복
-
-> **주의:** 카피를 붙여넣지 않으면 AI가 카피를 멋대로 만들어 디자인이 날아간다.
-
-#### 3) 코드 내보내기
-
-5개 섹션 모두 완료 후:
-1. 각 섹션에서 **"Open in" → "Claude Code"** 선택
-2. 생성된 코드 복사
-
----
-
-### Step 2-3. 디자인 검증 (Gate 2 — 사용자 체크)
+### Step 2-2. 디자인 검증 (Gate 2 — 사용자 체크)
 
 다음 항목을 직접 확인:
 
@@ -366,7 +343,7 @@ Variant에 히어로 프롬프트 붙여넣기 → 여러 변형 중 톤 선택
 
 **결과:**
 - 모두 통과 → Phase 3 진행
-- 미흡 항목 존재 → 해당 섹션 Variant에서 재작업
+- 미흡 항목 존재 → `/enf:design-guide` 재실행 또는 수동 수정
 
 ---
 
@@ -376,23 +353,15 @@ Variant에 히어로 프롬프트 붙여넣기 → 여러 변형 중 톤 선택
 
 ### Step 3-1. 코드 구현
 
-Variant에서 복사한 코드를 Claude Code에 붙여넣으며 실행:
+`copy.md` + `design-spec.md`를 기반으로 실제 코드를 구현한다:
 
 ```
 /enf:design-implement
-
-아래는 Variant에서 내보낸 5개 섹션 코드입니다:
-
-[Hero 코드 붙여넣기]
-[Problem 코드 붙여넣기]
-[Service 코드 붙여넣기]
-[Testimonials 코드 붙여넣기]
-[CTA 코드 붙여넣기]
 ```
 
 **에이전트 수행 내용:**
-1. 디자인 코드에서 토큰 추출 → Tailwind `@theme` 적용
-2. placeholder 텍스트를 `copy.md` 내용으로 교체
+1. `design-spec.md` 토큰 → Tailwind `@theme` 적용
+2. `copy.md` 텍스트를 컴포넌트에 반영
 3. 브랜드 이미지/폰트/컬러 적용
 4. Next.js + Tailwind CSS 반응형 구현
 5. 인터랙션 구현 (스크롤 애니메이션, 호버, 캐러셀)
@@ -455,15 +424,11 @@ Variant에서 복사한 코드를 Claude Code에 붙여넣으며 실행:
 # 3. 카피 검증
 /enf:copy-review
 
-# 4. 디자인 가이드 생성 (Step 2)
+# 4. 디자인 스펙 생성 (Step 2)
 /enf:design-guide --tone "강렬한, 다크"
 
-# 5. Variant에서 디자인 작업 (사용자)
-#    → 히어로 톤 확정 → 체이닝으로 5섹션 완성 → 코드 내보내기
-
-# 6. 코드 구현 (Step 3)
+# 5. 코드 구현 (Step 3)
 /enf:design-implement
-# (Variant 코드 붙여넣기)
 
 # 7. 검증 & 배포
 /enf:code-review
@@ -515,7 +480,7 @@ Variant에서 복사한 코드를 Claude Code에 붙여넣으며 실행:
 | Gate | 위치 | 검증 방법 | 실패 시 |
 |:----:|------|----------|--------|
 | 1 | Phase 1→2 | `/enf:copy-review` | 카피 수정 후 재검증 |
-| 2 | Phase 2→3 | 사용자 체크리스트 | Variant 재작업 |
+| 2 | Phase 2→3 | 사용자 체크리스트 | 스펙 수정 |
 | 3 | Phase 3→4 | `/enf:code-review` | 코드 수정 |
 
 ---

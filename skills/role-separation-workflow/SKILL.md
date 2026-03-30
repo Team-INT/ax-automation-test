@@ -67,7 +67,7 @@ Step 1: 카피          Step 2: 디자인         Step 3: 구현
 | 역할 | 도구 | 집중 영역 |
 |------|------|----------|
 | 카피라이터 | Claude Code (copy-strategist) | 메시지, 톤, 설득력 |
-| 크리에이티브 디렉터 | Variant / Figma (design-director) | 시각, 레이아웃 |
+| 크리에이티브 디렉터 | Claude Code (design-director) | 시각, 레이아웃 |
 | 프론트엔드 엔지니어 | Claude Code (dev-assistant) | 코드, 성능, 반응형 |
 
 ## When to Use
@@ -119,24 +119,29 @@ Step 1: 카피          Step 2: 디자인         Step 3: 구현
 
 ## Step 2: Design (`/enf:design-guide`)
 
-### Variant Workflow
+### 직접 생성 (기본)
 
-1. **히어로 먼저** — copy.md Hero 섹션 붙여넣기 + 톤 요청
-2. **톤 선택** — 컬러, 밀도, 레이아웃 확정
-3. **체이닝** — "New Chat from Design"으로 후속 섹션 생성
-4. **카피 필수** — 매 섹션마다 copy.md 원문 붙여넣기 (AI 변경 방지)
-5. **내보내기** — "Open in → Claude Code"
+Claude가 `copy.md` + 프로젝트 컨텍스트를 분석하여 `design-spec.md`를 **직접 작성**한다.
 
-### Figma Alternative
+1. **copy.md 분석** — 각 섹션의 콘텐츠 구조 파악
+2. **디자인 톤 결정** — 타겟 페르소나 + 서비스 성격 기반
+3. **섹션별 스펙 작성** — 레이아웃, 배경, 컴포넌트, 인터랙션, ASCII 와이어프레임
+4. **디자인 토큰 추출** — Tailwind `@theme` CSS 변수
 
-Figma MCP 도구로 디자인 정보 직접 추출:
+### Figma 연동 (--figma 옵션)
+
+Figma URL 제공 시 MCP 도구로 디자인 정보 추출:
 - `get_design_context` → 코드 + 스크린샷
 - `get_variable_defs` → 디자인 토큰
+
+### 외부 도구 (사용자 요청 시만)
+
+Variant 등 외부 도구는 사용자가 명시적으로 요청한 경우에만 가이드 제공.
 
 ### Output: design-spec.md
 
 - 디자인 톤 (컬러, 타이포, 여백, 인터랙션 — CSS 변수)
-- 섹션별 스펙 (레이아웃, Copy 매핑, Variant 코드)
+- 섹션별 스펙 (레이아웃, Copy 매핑, ASCII 와이어프레임)
 - @theme 토큰 블록
 - 반응형 브레이크포인트
 
