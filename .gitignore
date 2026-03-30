@@ -1,0 +1,27 @@
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Node (테스트 프로젝트용)
+node_modules/
+dist/
+.next/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Logs
+*.log
