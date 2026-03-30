@@ -15,10 +15,27 @@ Desktop.ini
 .env.*
 !.env.example
 
-# Node (테스트 프로젝트용)
+# Dependencies
 node_modules/
-dist/
+
+# Next.js
 .next/
+out/
+
+# Build
+dist/
+
+# Vercel
+.vercel
+
+# Testing
+coverage/
+playwright-report/
+test-results/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
 
 # Claude Code local settings
 .claude/settings.local.json
