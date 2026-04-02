@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { fadeUp } from "@/lib/animations"
 import {
   RiFileChartLine,
   RiDownload2Line,
@@ -49,13 +50,6 @@ const faqs = [
     a: "매년 공인회계법인의 독립적인 외부 감사를 받으며, 감사 의견이 포함된 감사보고서를 공개합니다. 이사회 감사위원회도 분기별로 내부 감사를 수행합니다.",
   },
 ] as const
-
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" },
-  transition: { duration: 0.6, delay, ease: [0.25, 0.1, 0.25, 1] },
-})
 
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false)

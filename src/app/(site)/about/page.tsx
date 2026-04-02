@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { fadeUp } from "@/lib/animations"
 import {
   RiGlobalLine,
   RiGovernmentLine,
@@ -69,7 +70,7 @@ const historyItems = [
       "26개국에서 사회적경제 생태계를 구축하며 수십만 명의 삶에 변화를 만들고 있습니다.",
     isCurrent: true,
   },
-] as const
+] satisfies { year: string; title: string; description: string; isCurrent?: boolean }[]
 
 const subpageLinks = [
   {
@@ -91,13 +92,6 @@ const subpageLinks = [
     Icon: RiShieldCheckLine,
   },
 ] as const
-
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" },
-  transition: { duration: 0.6, delay, ease: [0.25, 0.1, 0.25, 1] },
-})
 
 export default function AboutPage() {
   return (

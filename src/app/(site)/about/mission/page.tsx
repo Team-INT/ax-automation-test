@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { fadeUp } from "@/lib/animations"
 import {
   RiLightbulbLine,
   RiHandHeartLine,
@@ -58,13 +59,6 @@ const theoryOfChange = [
     description: "외부 지원 없이도 자생할 수 있는 구조로, 변화가 세대를 넘어 지속됩니다.",
   },
 ] as const
-
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" },
-  transition: { duration: 0.6, delay, ease: [0.25, 0.1, 0.25, 1] },
-})
 
 export default function MissionPage() {
   return (

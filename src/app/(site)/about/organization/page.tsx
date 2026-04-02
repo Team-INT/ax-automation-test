@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { fadeUp } from "@/lib/animations"
 import {
   RiUserStarLine,
   RiBookOpenLine,
@@ -95,13 +96,6 @@ const orgUnits = [
     tags: ["사업팀", "파트너십팀", "재무팀", "소셜비즈니스팀"],
   },
 ] as const
-
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" },
-  transition: { duration: 0.6, delay, ease: [0.25, 0.1, 0.25, 1] },
-})
 
 export default function OrganizationPage() {
   return (
