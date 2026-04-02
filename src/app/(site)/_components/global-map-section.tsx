@@ -1,43 +1,53 @@
 "use client"
 
 import { motion, useInView } from "framer-motion"
-import { useRef } from "react"
+import { useRef, useState } from "react"
+import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps"
+
+const GEO_URL =
+  "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
 
 /* -------------------------------------------------------
-   Country data — 26 countries across 3 regions
-   Coordinates are relative to the 1000x500 SVG viewBox
+   Country data — 26 countries, real [lng, lat] coordinates
    ------------------------------------------------------- */
-const countries = [
+interface Country {
+  name: string
+  coordinates: [number, number]
+  cooperatives: number
+  region: "아프리카" | "아시아" | "중남미"
+}
+
+const countries: Country[] = [
   // 아프리카 (13)
-  { name: "에티오피아", x: 590, y: 258, cooperatives: 85 },
-  { name: "르완다", x: 562, y: 282, cooperatives: 62 },
-  { name: "케냐", x: 578, y: 272, cooperatives: 55 },
-  { name: "탄자니아", x: 572, y: 296, cooperatives: 48 },
-  { name: "우간다", x: 558, y: 263, cooperatives: 42 },
-  { name: "모잠비크", x: 572, y: 332, cooperatives: 35 },
-  { name: "말라위", x: 578, y: 316, cooperatives: 28 },
-  { name: "잠비아", x: 552, y: 312, cooperatives: 22 },
-  { name: "콩고민주공화국", x: 538, y: 278, cooperatives: 18 },
-  { name: "가나", x: 478, y: 252, cooperatives: 15 },
-  { name: "세네갈", x: 443, y: 237, cooperatives: 12 },
-  { name: "말리", x: 468, y: 227, cooperatives: 10 },
-  { name: "부르키나파소", x: 477, y: 242, cooperatives: 8 },
+  { name: "에티오피아", coordinates: [38.76, 8.99], cooperatives: 85, region: "아프리카" },
+  { name: "르완다", coordinates: [29.87, -1.94], cooperatives: 62, region: "아프리카" },
+  { name: "케냐", coordinates: [37.91, -0.02], cooperatives: 55, region: "아프리카" },
+  { name: "탄자니아", coordinates: [34.89, -6.37], cooperatives: 48, region: "아프리카" },
+  { name: "우간다", coordinates: [32.29, 1.37], cooperatives: 42, region: "아프리카" },
+  { name: "모잠비크", coordinates: [35.53, -17.27], cooperatives: 35, region: "아프리카" },
+  { name: "말라위", coordinates: [34.30, -13.25], cooperatives: 28, region: "아프리카" },
+  { name: "잠비아", coordinates: [27.85, -13.13], cooperatives: 22, region: "아프리카" },
+  { name: "콩고민주공화국", coordinates: [24.0, -4.0], cooperatives: 18, region: "아프리카" },
+  { name: "가나", coordinates: [-1.02, 7.95], cooperatives: 15, region: "아프리카" },
+  { name: "세네갈", coordinates: [-14.45, 14.50], cooperatives: 12, region: "아프리카" },
+  { name: "말리", coordinates: [-1.68, 17.57], cooperatives: 10, region: "아프리카" },
+  { name: "부르키나파소", coordinates: [-1.56, 12.36], cooperatives: 8, region: "아프리카" },
   // 아시아 (8)
-  { name: "캄보디아", x: 733, y: 242, cooperatives: 45 },
-  { name: "미얀마", x: 713, y: 222, cooperatives: 38 },
-  { name: "필리핀", x: 768, y: 238, cooperatives: 30 },
-  { name: "베트남", x: 738, y: 228, cooperatives: 25 },
-  { name: "인도네시아", x: 748, y: 282, cooperatives: 22 },
-  { name: "네팔", x: 693, y: 207, cooperatives: 18 },
-  { name: "방글라데시", x: 703, y: 217, cooperatives: 15 },
-  { name: "스리랑카", x: 698, y: 252, cooperatives: 10 },
+  { name: "캄보디아", coordinates: [104.99, 12.57], cooperatives: 45, region: "아시아" },
+  { name: "미얀마", coordinates: [95.96, 21.92], cooperatives: 38, region: "아시아" },
+  { name: "필리핀", coordinates: [121.77, 12.88], cooperatives: 30, region: "아시아" },
+  { name: "베트남", coordinates: [108.28, 14.06], cooperatives: 25, region: "아시아" },
+  { name: "인도네시아", coordinates: [113.92, -0.79], cooperatives: 22, region: "아시아" },
+  { name: "네팔", coordinates: [84.12, 28.39], cooperatives: 18, region: "아시아" },
+  { name: "방글라데시", coordinates: [90.36, 23.69], cooperatives: 15, region: "아시아" },
+  { name: "스리랑카", coordinates: [80.77, 7.87], cooperatives: 10, region: "아시아" },
   // 중남미 (5)
-  { name: "과테말라", x: 248, y: 237, cooperatives: 20 },
-  { name: "온두라스", x: 258, y: 243, cooperatives: 15 },
-  { name: "니카라과", x: 263, y: 250, cooperatives: 12 },
-  { name: "페루", x: 273, y: 312, cooperatives: 10 },
-  { name: "볼리비아", x: 293, y: 326, cooperatives: 8 },
-] as const
+  { name: "과테말라", coordinates: [-90.23, 15.78], cooperatives: 20, region: "중남미" },
+  { name: "온두라스", coordinates: [-86.24, 15.20], cooperatives: 15, region: "중남미" },
+  { name: "니카라과", coordinates: [-85.21, 12.87], cooperatives: 12, region: "중남미" },
+  { name: "페루", coordinates: [-75.02, -9.19], cooperatives: 10, region: "중남미" },
+  { name: "볼리비아", coordinates: [-64.99, -16.29], cooperatives: 8, region: "중남미" },
+]
 
 const regions = [
   { region: "아프리카", count: 13, cooperatives: 440, label: "개국" },
@@ -45,9 +55,8 @@ const regions = [
   { region: "중남미", count: 5, cooperatives: 65, label: "개국" },
 ] as const
 
-/* Compute dot radius: sqrt scale, clamped for readability */
 function dotRadius(cooperatives: number): number {
-  return Math.max(2.8, Math.sqrt(cooperatives) * 0.72)
+  return Math.max(3.5, Math.sqrt(cooperatives) * 0.9)
 }
 
 /* -------------------------------------------------------
@@ -56,6 +65,7 @@ function dotRadius(cooperatives: number): number {
 export function GlobalMapSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" })
+  const [tooltip, setTooltip] = useState<{ name: string; cooperatives: number } | null>(null)
 
   return (
     <section
@@ -85,51 +95,60 @@ export function GlobalMapSection() {
         </motion.div>
 
         {/* ---- Map ---- */}
-        <div className="mt-16 lg:mt-20">
-          <svg
-            viewBox="0 0 1000 500"
+        <motion.div
+          className="relative mt-16 lg:mt-20"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          {/* Tooltip */}
+          {tooltip && (
+            <div className="pointer-events-none absolute left-1/2 top-2 z-20 -translate-x-1/2 rounded-lg border border-white/10 bg-forest/95 px-3 py-1.5 text-center backdrop-blur-sm">
+              <p className="text-xs font-semibold text-white">{tooltip.name}</p>
+              <p className="text-[11px] text-gold/80">{tooltip.cooperatives}개 협동조합</p>
+            </div>
+          )}
+
+          <ComposableMap
+            projection="geoNaturalEarth1"
+            projectionConfig={{ scale: 160 }}
             className="mx-auto h-auto w-full max-w-5xl"
-            fill="none"
-            role="img"
             aria-label="26개국 활동 지역을 보여주는 세계지도"
           >
-            {/* Very simplified continent outlines — low opacity, just for spatial context */}
-            <g opacity={0.08} stroke="white" strokeWidth={0.8} fill="none">
-              {/* North America */}
-              <path d="M80,120 Q120,80 200,90 Q250,85 280,110 Q300,130 290,160 Q280,180 260,200 Q240,220 250,240 Q245,250 240,245 L230,230 Q210,200 190,190 Q160,175 130,170 Q100,165 80,150 Z" />
-              {/* Central America */}
-              <path d="M240,245 Q250,248 255,256 Q258,262 252,265" />
-              {/* South America */}
-              <path d="M250,260 Q270,250 290,270 Q310,300 320,340 Q325,370 310,400 Q295,420 280,410 Q260,395 265,370 Q268,350 260,330 Q255,310 248,290 Z" />
-              {/* Europe */}
-              <path d="M470,80 Q490,75 510,80 Q530,85 540,100 Q535,115 520,120 Q510,130 495,135 Q480,130 470,120 Q465,110 465,95 Z" />
-              {/* Africa */}
-              <path d="M470,170 Q490,160 520,165 Q550,170 570,190 Q590,220 600,260 Q605,300 590,340 Q575,370 555,380 Q530,385 510,370 Q490,350 480,320 Q470,290 465,260 Q460,230 462,200 Z" />
-              {/* Asia */}
-              <path d="M550,70 Q600,60 650,65 Q700,70 740,85 Q780,100 800,130 Q810,160 790,180 Q770,200 750,210 Q730,220 720,240 Q750,250 780,260 Q790,280 770,300 Q740,290 720,270 Q700,260 680,230 Q660,210 640,190 Q620,170 600,150 Q570,130 555,110 Q545,90 550,70 Z" />
-              {/* Australia */}
-              <path d="M770,340 Q800,330 830,340 Q850,355 845,375 Q835,390 810,395 Q790,390 775,375 Q765,360 770,340 Z" />
-            </g>
+            <Geographies geography={GEO_URL}>
+              {({ geographies }) =>
+                geographies.map((geo) => (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    fill="rgba(255,255,255,0.06)"
+                    stroke="rgba(255,255,255,0.12)"
+                    strokeWidth={0.4}
+                  />
+                ))
+              }
+            </Geographies>
 
-            {/* Country dots */}
             {countries.map((country, i) => {
               const r = dotRadius(country.cooperatives)
               return (
-                <g key={country.name}>
-                  <title>{`${country.name}: ${country.cooperatives}개 협동조합`}</title>
-
-                  {/* Subtle pulse ring — only starts when in view */}
+                <Marker
+                  key={country.name}
+                  coordinates={country.coordinates}
+                  onMouseEnter={() => setTooltip({ name: country.name, cooperatives: country.cooperatives })}
+                  onMouseLeave={() => setTooltip(null)}
+                >
+                  {/* Pulse ring */}
                   {isInView && (
                     <motion.circle
-                      cx={country.x}
-                      cy={country.y}
+                      r={r}
                       fill="none"
                       stroke="#D4A847"
-                      strokeWidth={0.6}
-                      initial={{ r, opacity: 0 }}
+                      strokeWidth={0.7}
+                      initial={{ scale: 1, opacity: 0.5 }}
                       animate={{
-                        r: [r, r + 6, r],
-                        opacity: [0.4, 0, 0.4],
+                        scale: [1, 2.2, 1],
+                        opacity: [0.5, 0, 0.5],
                       }}
                       transition={{
                         duration: 3,
@@ -139,71 +158,28 @@ export function GlobalMapSection() {
                       }}
                     />
                   )}
-
-                  {/* Main dot — staggered entrance */}
+                  {/* Main dot */}
                   <motion.circle
-                    cx={country.x}
-                    cy={country.y}
                     r={r}
                     fill="#D4A847"
-                    initial={{ opacity: 0, scale: 0 }}
+                    initial={{ scale: 0, opacity: 0 }}
                     animate={
                       isInView
-                        ? { opacity: 0.85, scale: 1 }
-                        : { opacity: 0, scale: 0 }
+                        ? { scale: 1, opacity: 0.88 }
+                        : { scale: 0, opacity: 0 }
                     }
                     transition={{
-                      delay: 0.4 + i * 0.03,
+                      delay: 0.4 + i * 0.04,
                       duration: 0.45,
                       ease: "easeOut",
                     }}
+                    style={{ cursor: "pointer" }}
                   />
-                </g>
+                </Marker>
               )
             })}
-
-            {/* Region labels — appear last */}
-            <motion.g
-              initial={{ opacity: 0 }}
-              animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ delay: 1.8, duration: 0.8 }}
-            >
-              <text
-                x="520"
-                y="190"
-                fill="white"
-                opacity={0.35}
-                fontSize={10}
-                fontWeight={600}
-                letterSpacing="0.05em"
-              >
-                AFRICA
-              </text>
-              <text
-                x="718"
-                y="192"
-                fill="white"
-                opacity={0.35}
-                fontSize={10}
-                fontWeight={600}
-                letterSpacing="0.05em"
-              >
-                ASIA
-              </text>
-              <text
-                x="235"
-                y="278"
-                fill="white"
-                opacity={0.35}
-                fontSize={10}
-                fontWeight={600}
-                letterSpacing="0.05em"
-              >
-                LATAM
-              </text>
-            </motion.g>
-          </svg>
-        </div>
+          </ComposableMap>
+        </motion.div>
 
         {/* ---- Region summary cards ---- */}
         <div className="mx-auto mt-12 grid max-w-2xl grid-cols-3 gap-4 lg:mt-16 lg:gap-6">

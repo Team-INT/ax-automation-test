@@ -74,8 +74,8 @@
   --radius-xl: 1rem;
 
   /* Typography stacks */
-  --font-sans: var(--font-jakarta), var(--font-noto-kr), system-ui, sans-serif;
-  --font-serif: var(--font-noto-serif-kr), Georgia, serif;
+  --font-sans: var(--font-pretendard), "Pretendard Variable", Pretendard, system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-pretendard), "Pretendard Variable", Pretendard, Georgia, serif;
   --font-mono: ui-monospace, monospace;
 }
 
@@ -213,4 +213,43 @@
     background-color: #D4A847;
     color: #1B4332;
   }
+}
+
+/* =========================================================
+   Swiper — Programs carousel custom bullets
+   ========================================================= */
+.programs-swiper {
+  overflow: visible !important;
+  padding-bottom: 56px !important;
+}
+
+.programs-swiper .swiper-pagination {
+  bottom: 0 !important;
+  left: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: auto !important;
+  justify-content: flex-start;
+}
+
+.programs-swiper .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: #E2DDD0;
+  opacity: 1;
+  border-radius: 100px;
+  transition: width 0.3s ease, background 0.3s ease;
+  margin: 0 !important;
+}
+
+.programs-swiper .swiper-pagination-bullet-active {
+  width: 32px;
+  background: #1B4332;
+}
+
+/* Swiper nav button reset */
+.programs-swiper .swiper-button-prev,
+.programs-swiper .swiper-button-next {
+  display: none;
 }

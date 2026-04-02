@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 
 /* -------------------------------------------------------
@@ -15,6 +16,10 @@ const stories = [
     quote:
       "협동조합에 가입한 이후 커피 수확량이 두 배로 늘었고, 아이들 학비를 낼 수 있게 되었습니다. 이제 저는 마을에서 다른 여성들에게 농업 기술을 가르칩니다.",
     accentColor: "#2D6A4F",
+    image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=400&q=80",
+    imageAlt: "르완다 협동조합 조합원 Alice Mukamana",
+    bgImage: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=900&q=80",
+    bgAlt: "르완다 커피 농장 — 협동조합 수확 현장",
   },
   {
     name: "Srey Pov",
@@ -24,6 +29,10 @@ const stories = [
     quote:
       "소액 대출로 작은 식료품점을 열었습니다. 이제 저는 단순한 수혜자가 아니라 사업주입니다. 딸의 대학 등록금도 모을 수 있게 됐어요.",
     accentColor: "#D4A847",
+    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+    imageAlt: "캄보디아 소액금융 수혜자 Srey Pov",
+    bgImage: "https://images.unsplash.com/photo-1604156425963-9be03f86a428?auto=format&fit=crop&w=900&q=80",
+    bgAlt: "캄보디아 지역 시장 — 소액금융으로 시작한 소규모 사업",
   },
   {
     name: "Fikadu Tessema",
@@ -33,6 +42,10 @@ const stories = [
     quote:
       "사회적기업에서 일하면서 안정적인 소득을 얻고, 지역 사회에 기여하고 있다는 자부심을 느낍니다. 우리 마을의 청년 실업률이 눈에 띄게 줄었습니다.",
     accentColor: "#40916C",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+    imageAlt: "에티오피아 사회적기업 직원 Fikadu Tessema",
+    bgImage: "https://images.unsplash.com/photo-1526628953301-3cd68bce93a6?auto=format&fit=crop&w=900&q=80",
+    bgAlt: "에티오피아 사회적기업 현장",
   },
 ] as const
 
@@ -152,39 +165,47 @@ export function StoriesSection() {
                 transition={{ duration: 0.4, ease: [0.32, 0, 0.67, 0] }}
                 className="grid gap-0 overflow-hidden rounded-2xl lg:grid-cols-[1fr_1.2fr]"
               >
-                {/* Left panel — accent color with large number */}
-                <div
-                  className="relative flex min-h-[220px] flex-col justify-between overflow-hidden p-10 lg:min-h-[380px]"
-                  style={{ backgroundColor: story.accentColor }}
-                >
-                  {/* Background decorative circle */}
-                  <div
-                    className="absolute -right-16 -bottom-16 h-64 w-64 rounded-full opacity-20"
-                    style={{ background: "rgba(255,255,255,0.15)" }}
-                    aria-hidden="true"
+                {/* Left panel — background photo */}
+                <div className="relative flex min-h-[260px] flex-col justify-between overflow-hidden lg:min-h-[400px]">
+                  {/* Background scene image */}
+                  <Image
+                    src={story.bgImage}
+                    alt={story.bgAlt}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 40vw"
                   />
+                  {/* Color tint overlay */}
                   <div
-                    className="absolute -left-8 top-8 h-32 w-32 rounded-full opacity-10"
-                    style={{ background: "rgba(255,255,255,0.2)" }}
-                    aria-hidden="true"
+                    className="absolute inset-0"
+                    style={{ backgroundColor: story.accentColor, opacity: 0.55 }}
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
                   {/* Region tag */}
-                  <span className="relative z-10 w-fit rounded-full border border-white/20 px-3 py-1 text-[11px] font-semibold tracking-wide text-white/80 uppercase">
+                  <span className="relative z-10 m-6 w-fit rounded-full border border-white/25 bg-black/20 px-3 py-1 text-[11px] font-semibold tracking-widest text-white/90 uppercase backdrop-blur-sm">
                     {story.region}
                   </span>
 
-                  {/* Avatar + info */}
-                  <div className="relative z-10">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-white/30 bg-white/10 text-2xl font-black text-white">
-                      {story.name.charAt(0)}
+                  {/* Person avatar + info */}
+                  <div className="relative z-10 flex items-end gap-4 p-6">
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-white/40">
+                      <Image
+                        src={story.image}
+                        alt={story.imageAlt}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                      />
                     </div>
-                    <p className="mt-4 text-lg font-bold text-white">
-                      {story.name}
-                    </p>
-                    <p className="mt-0.5 text-sm text-white/65">
-                      {story.country} · {story.role}
-                    </p>
+                    <div>
+                      <p className="text-[17px] font-bold text-white drop-shadow-sm">
+                        {story.name}
+                      </p>
+                      <p className="mt-0.5 text-[13px] text-white/70">
+                        {story.country} · {story.role}
+                      </p>
+                    </div>
                   </div>
                 </div>
 

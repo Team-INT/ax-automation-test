@@ -47,7 +47,7 @@ export function SiteHeader() {
         "fixed top-0 right-0 left-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300",
         scrolled
           ? "bg-white/90 backdrop-blur-md border-b border-border/40"
-          : "bg-transparent border-b border-transparent",
+          : "bg-gradient-to-b from-forest/75 via-forest/20 to-transparent border-b border-transparent",
       ].join(" ")}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">

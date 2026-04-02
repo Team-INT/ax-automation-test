@@ -1,18 +1,12 @@
 import type { Metadata } from "next"
-import { Plus_Jakarta_Sans, Noto_Sans_KR } from "next/font/google"
+import localFont from "next/font/local"
 import "./globals.css"
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
+const pretendard = localFont({
+  src: "../../public/fonts/PretendardVariable.woff2",
+  variable: "--font-pretendard",
   display: "swap",
-})
-
-const notoKr = Noto_Sans_KR({
-  subsets: ["latin"],
-  variable: "--font-noto-kr",
-  weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
+  weight: "45 920",
 })
 
 export const metadata: Metadata = {
@@ -30,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko" className={`${jakarta.variable} ${notoKr.variable}`}>
+    <html lang="ko" className={pretendard.variable}>
       <body>{children}</body>
     </html>
   )
