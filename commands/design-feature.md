@@ -20,6 +20,28 @@ Designs the architecture before adding a new feature.
 /design-feature "인플루언서 검색 필터"
 ```
 
+## Pre-check: 역할 분리 워크플로우 분기
+
+기능 설명을 분석하여 다음 분기를 적용한다:
+
+| 대상 | 경로 |
+|------|------|
+| **사이트 메인 / 랜딩페이지 / 마케팅 페이지** | 역할 분리 워크플로우 안내 |
+| **Admin CRUD / API / 내부 기능** | 아래 Design Process 진행 |
+
+사이트/랜딩페이지/마케팅 페이지인 경우:
+
+> 이 기능은 **역할 분리 디자인 방법론**을 적용하면 더 높은 퀄리티의 결과물을 얻을 수 있습니다.
+> `/enf:copy-write`로 카피 작성부터 시작하세요.
+>
+> 워크플로우: `/enf:copy-write` → `/enf:copy-review` → `/enf:design-guide` → `/enf:design-implement`
+>
+> 자세한 내용은 `role-separation-workflow` 스킬을 참조하세요.
+
+Admin/CRUD/API 기능인 경우 아래 기존 프로세스를 따른다.
+
+---
+
 ## Design Process
 
 ### 1. Requirements Analysis
