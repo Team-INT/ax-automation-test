@@ -44,7 +44,7 @@ const stories = [
     accentColor: "#40916C",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
     imageAlt: "에티오피아 사회적기업 직원 Fikadu Tessema",
-    bgImage: "https://images.unsplash.com/photo-1526628953301-3cd68bce93a6?auto=format&fit=crop&w=900&q=80",
+    bgImage: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80",
     bgAlt: "에티오피아 사회적기업 현장",
   },
 ] as const
