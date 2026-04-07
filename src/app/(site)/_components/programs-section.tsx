@@ -24,7 +24,7 @@ const programs = [
     description:
       "지역 주민이 직접 소유하고 운영하는 협동조합을 육성하여 경제적 자립 기반을 구축합니다. 농업, 수산업, 수공예 등 지역 산업과 연계합니다.",
     href: "/programs/cooperative",
-    image: "https://images.unsplash.com/photo-1526628953301-3cd68bce93a6?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=800&q=80",
     imageAlt: "협동조합 농업 현장 — 지역 주민들이 함께 수확하는 모습",
     accentClass: "bg-emerald",
     tags: ["농업", "수산업", "수공예", "유통"],
